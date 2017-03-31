@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 /**
  * Created by Administrator on 2017/3/31
+ * 判断是否有网络
  */
 @Retention(RetentionPolicy.RUNTIME) //何时生效
 @Target(ElementType.METHOD) //Annotation的位置
