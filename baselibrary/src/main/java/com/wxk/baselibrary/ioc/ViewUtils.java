@@ -1,9 +1,13 @@
 package com.wxk.baselibrary.ioc;
 
 import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.View;
+import android.widget.Toast;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -73,9 +77,10 @@ public class ViewUtils {
                 for (int viewId : value) {
 
                     View view = viewFinder.findViewById(viewId);
+                    boolean isCheckNet = method.getAnnotation(CheckNet.class) != null;
                     if(view != null){
 
-                        view.setOnClickListener(new DeclaredOnClickListener(object, method));
+                        view.setOnClickListener(new DeclaredOnClickListener(object, method, isCheckNet));
                     }
                 }
             }
@@ -89,15 +94,26 @@ public class ViewUtils {
     private static class DeclaredOnClickListener implements View.OnClickListener {
         private final Object mObject;
         private final Method mMethod;
+        private final boolean mIsCheckNet;
 
-        public DeclaredOnClickListener(Object object, Method method) {
+        public DeclaredOnClickListener(Object object, Method method, boolean isCheckNet) {
 
             this.mObject = object;
             this.mMethod = method;
+            this.mIsCheckNet = isCheckNet;
         }
 
         @Override
         public void onClick(@NonNull View v) {
+
+            if(mIsCheckNet){
+
+                if(!isNetworkAvailable(v.getContext())){
+
+                    Toast.makeText(v.getContext(), "亲，您的网络不太给力哦!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
 
             try {
                 mMethod.setAccessible(true);
@@ -108,7 +124,29 @@ public class ViewUtils {
             } catch (InvocationTargetException e) {
                 throw new IllegalStateException(
                         "Could not execute method for android:onClick", e);
+            }catch (Exception e){
+                e.printStackTrace();
+                try {
+                    mMethod.invoke(mObject, new Object[]{});
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             }
         }
+    }
+
+    //判断当前是否有网
+    private static boolean isNetworkAvailable(Context context){
+        try {
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+            if(networkInfo != null && networkInfo.isConnected()){
+                return true;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return false;
     }
 }
