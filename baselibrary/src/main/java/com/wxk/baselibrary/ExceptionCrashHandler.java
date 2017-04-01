@@ -21,13 +21,14 @@ import java.util.Map;
  * Created by Administrator on 2017/3/31
  */
 
-public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
+public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler{
 
     private static final String TAG = "ExceptionCrashHandler";
 
     private Context mContext;
     private static ExceptionCrashHandler mInstance;
-    //需要系统默认处理
+
+    //系统默认
     private Thread.UncaughtExceptionHandler mDefaultExceptionHandler;
 
     public static ExceptionCrashHandler getInstance(){
@@ -43,23 +44,23 @@ public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
     public void init(Context context){
-
         this.mContext = context;
         //设置全局异常类为本类
         Thread.currentThread().setUncaughtExceptionHandler(this);
 
-        mDefaultExceptionHandler = Thread.currentThread().getUncaughtExceptionHandler();
+        mDefaultExceptionHandler = Thread.currentThread().getDefaultUncaughtExceptionHandler();
     }
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
 
-        //缓存信息
+        //崩溃信息 应用信息、版本号 手机信息 保存当前文件
         String crashFileName = saveInfoToSD(e);
 
-        //缓存崩溃日志文件路径
+        //  缓存崩溃日志文件
         cacheCrashFile(crashFileName);
 
+        //系统默认处理exception
         mDefaultExceptionHandler.uncaughtException(t, e);
     }
 
@@ -84,47 +85,49 @@ public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
     /**
      * 保存获取的 软件信息，设备信息和出错信息保存在SDCard中
      */
-    private String saveInfoToSD(Throwable e) {
-
+    private String saveInfoToSD(Throwable ex) {
         String fileName = null;
         StringBuffer sb = new StringBuffer();
 
-        //手机信息+应用信息
-        for (Map.Entry<String, String> entry: obtainSimpleInfo(mContext).entrySet()) {
-
+        // 1. 手机信息 + 应用信息   --> obtainSimpleInfo()
+        for (Map.Entry<String, String> entry : obtainSimpleInfo(mContext)
+                .entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
-            sb.append(key).append("=").append(value).append("\n");
+            sb.append(key).append(" = ").append(value).append("\n");
         }
 
-        //崩溃的详细信息
-        sb.append(obtainExceptionInfo(e));
+        // 2.崩溃的详细信息
+        sb.append(obtainExceptionInfo(ex));
 
-        //保存文件 6.0需要申请权限(后面处理)
-        if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
+        // 保存文件  6.0 以上需要动态申请权限
+        if (Environment.getExternalStorageState().equals(
+                Environment.MEDIA_MOUNTED)) {
 
             File dir = new File(mContext.getFilesDir() + File.separator + "crash"
-                + File.separator);
-            //先删除之前的
-            if(dir.exists()){
+                    + File.separator);
 
+            // 先删除之前的异常信息
+            if (dir.exists()) {
+                // 删除该目录下的所有子文件
                 deleteDir(dir);
             }
 
-            if(!dir.exists()){
-                dir.mkdirs();
+            // 再从新创建文件夹
+            if (!dir.exists()) {
+                dir.mkdir();
             }
 
             try {
                 fileName = dir.toString()
                         + File.separator
-                        + getAssignTime("yyyy:MM:dd HH:mm") + ".txt";
+                        + getAssignTime("yyyy_MM_dd_HH_mm") + ".txt";
                 FileOutputStream fos = new FileOutputStream(fileName);
                 fos.write(sb.toString().getBytes());
                 fos.flush();
                 fos.close();
-            } catch (Exception e1) {
-                e1.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return fileName;
@@ -142,8 +145,7 @@ public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
     /**
      * 获取一些简单的信息,软件版本，手机版本，型号等信息存放在HashMap中
      */
-    private HashMap<String, String> obtainSimpleInfo(Context context){
-
+    private HashMap<String, String> obtainSimpleInfo(Context context) {
         HashMap<String, String> map = new HashMap<>();
         PackageManager mPackageManager = context.getPackageManager();
         PackageInfo mPackageInfo = null;
@@ -153,28 +155,27 @@ public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        map.put("versionName---->", mPackageInfo.versionName);
-        map.put("versionCode---->", String.valueOf(mPackageInfo.versionCode));
-        map.put("MODEL---->", Build.MODEL);
-        map.put("SDK_INT---->", String.valueOf(Build.VERSION.SDK_INT));
-        map.put("PRODUCT---->", Build.PRODUCT);
-        map.put("MOBILE_INFO---->", "\n" + getMobileInfo());
+        map.put("versionName", mPackageInfo.versionName);
+        map.put("versionCode", "" + mPackageInfo.versionCode);
+        map.put("MODEL", "" + Build.MODEL);
+        map.put("SDK_INT", "" + Build.VERSION.SDK_INT);
+        map.put("PRODUCT", "" + Build.PRODUCT);
+        map.put("MOBILE_INFO", getMobileInfo());
         return map;
     }
 
     /**
      * 获取手机信息
      */
-    private String getMobileInfo() {
-
+    public static String getMobileInfo() {
         StringBuffer sb = new StringBuffer();
-        Field[] fields = Build.class.getDeclaredFields();
         try {
+            Field[] fields = Build.class.getDeclaredFields();
             for (Field field : fields) {
                 field.setAccessible(true);
                 String name = field.getName();
                 String value = field.get(null).toString();
-                sb.append(name + "==" + value);
+                sb.append(name + "=" + value);
                 sb.append("\n");
             }
         } catch (Exception e) {
@@ -182,6 +183,7 @@ public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
         }
         return sb.toString();
     }
+
 
     /**
      * 获取系统未捕捉的错误信息
@@ -195,15 +197,14 @@ public class ExceptionCrashHandler implements Thread.UncaughtExceptionHandler {
     }
 
     /**
-     * 删除文件夹里的所有文件
+     * 删除目录下的所有文件及子目录下所有文件
      */
     private boolean deleteDir(File dir) {
-
-        if(dir.isDirectory()){
-
-            File[] files = dir.listFiles();
-            for (File file : files) {
-                file.delete();
+        if (dir.isDirectory()) {
+            File[] children = dir.listFiles();
+            // 删除目录中的子目录下
+            for (File child : children) {
+                child.delete();
             }
         }
         return true;
