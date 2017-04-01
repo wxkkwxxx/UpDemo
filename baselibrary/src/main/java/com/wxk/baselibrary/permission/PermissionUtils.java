@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -50,14 +51,24 @@ public class PermissionUtils {
      * 获取到要执行的失败的方法
      */
     public static void executeFailedMethod(Object object, int requestCode){
-        Method[] methods = object.getClass().getDeclaredMethods();
-        for (Method method : methods) {
 
+        List<Method> methods = new ArrayList<>();
+        Class<?> tempClass = object.getClass();
+        while (tempClass != null && !tempClass.getSimpleName().equals("AppCompatActivity")) {
+            methods.addAll(Arrays.asList(tempClass.getDeclaredMethods()));
+            tempClass = tempClass.getSuperclass();
+        }
+
+        for (Method method : methods) {
             PermissionFailed failed = method.getAnnotation(PermissionFailed.class);
             if(failed != null){
 
                 int methodCode = failed.requestCode();
-                if(methodCode == requestCode){
+                if(methodCode == requestCode){ //执行重写的失败回调方法
+
+                    executeMethod(object, method);
+                    break;
+                }else { //执行父类的失败回调方法
 
                     executeMethod(object, method);
                 }

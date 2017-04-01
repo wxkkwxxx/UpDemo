@@ -7,7 +7,10 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
+import com.wxk.baselibrary.R;
 import com.wxk.baselibrary.ioc.ViewUtils;
+import com.wxk.baselibrary.permission.PermissionConstants;
+import com.wxk.baselibrary.permission.PermissionFailed;
 import com.wxk.baselibrary.permission.PermissionHelper;
 
 /**
@@ -57,11 +60,20 @@ public abstract class BaseActivity extends AppCompatActivity{
 
     /**
      * findViewById
-     *
-     * @return View
      */
     protected <T extends View> T viewById(int viewId) {
         return (T) findViewById(viewId);
+    }
+
+    /**
+     * 统一处理请求权限失败回调
+     */
+    @PermissionFailed(requestCode = PermissionConstants.COMMON_FAILED_REQUEST_CODE)
+    public void requestPermissionFailed(){
+
+        PermissionHelper.showAskRequestDialog(this,
+                getString(R.string.perm_tip),
+                R.string.setting, R.string.cancel, null);
     }
 
     @Override
