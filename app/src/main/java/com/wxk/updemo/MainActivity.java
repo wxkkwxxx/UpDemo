@@ -1,19 +1,25 @@
 package com.wxk.updemo;
 
+import android.Manifest;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import com.wxk.baselibrary.ExceptionCrashHandler;
 import com.wxk.baselibrary.base.BaseActivity;
-import com.wxk.baselibrary.dialog.AlertDialog;
 import com.wxk.baselibrary.ioc.CheckNet;
 import com.wxk.baselibrary.ioc.OnClick;
 import com.wxk.baselibrary.ioc.ViewById;
+import com.wxk.baselibrary.permission.PermissionConstants;
+import com.wxk.baselibrary.permission.PermissionFailed;
+import com.wxk.baselibrary.permission.PermissionHelper;
+import com.wxk.baselibrary.permission.PermissionSucceed;
 import com.wxk.framelibrary.CommonNavigationBar;
 
 import java.io.File;
@@ -21,6 +27,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import static com.wxk.baselibrary.permission.PermissionConstants.CALL_PHONE_REQUEST_CODE;
 
 public class MainActivity extends BaseActivity {
 
@@ -64,21 +72,42 @@ public class MainActivity extends BaseActivity {
     @CheckNet
     private void onClick(View view){
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setContentView(R.layout.detail_comment_dialog)
-                .fullWidth()
-                .fromBottom(true)
-                .show();
+        PermissionHelper.with(this)
+                .requestCode(PermissionConstants.CALL_PHONE_REQUEST_CODE)
+                .requestPermissions(new String[]{Manifest.permission.CALL_PHONE})
+                .request();
 
-        final EditText commentEt = dialog.getView(R.id.comment_editor);
+//        AlertDialog dialog = new AlertDialog.Builder(this)
+//                .setContentView(R.layout.detail_comment_dialog)
+//                .fullWidth()
+//                .fromBottom(true)
+//                .show();
+//
+//        final EditText commentEt = dialog.getView(R.id.comment_editor);
+//
+//        dialog.setOnclickListener(R.id.submit_btn, new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Toast.makeText(MainActivity.this,
+//                        commentEt.getText().toString().trim(), Toast.LENGTH_SHORT).show();
+//            }
+//        });
+    }
 
-        dialog.setOnclickListener(R.id.submit_btn, new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(MainActivity.this,
-                        commentEt.getText().toString().trim(), Toast.LENGTH_SHORT).show();
-            }
-        });
+    @PermissionSucceed(requestCode = CALL_PHONE_REQUEST_CODE)
+    private void callPhone() {
+
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        Uri uri = Uri.parse("tel:"+88888);
+        intent.setData(uri);
+        startActivity(intent);
+    }
+
+    //失败
+    @PermissionFailed(requestCode = CALL_PHONE_REQUEST_CODE)
+    private void callFailed(){
+
+        Toast.makeText(this, "关闭了拨打电话权限", Toast.LENGTH_SHORT).show();
     }
 
     private void upLoadCrashFile() {

@@ -2,11 +2,13 @@ package com.wxk.baselibrary.base;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 
 import com.wxk.baselibrary.ioc.ViewUtils;
+import com.wxk.baselibrary.permission.PermissionHelper;
 
 /**
  * Created by Administrator on 2017/3/31
@@ -60,5 +62,12 @@ public abstract class BaseActivity extends AppCompatActivity{
      */
     protected <T extends View> T viewById(int viewId) {
         return (T) findViewById(viewId);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        PermissionHelper.requestPermissionsResult(this, requestCode, permissions);
     }
 }
