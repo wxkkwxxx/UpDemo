@@ -11,7 +11,8 @@ import com.wxk.baselibrary.navigationBar.AbsNavigationBar;
  * Created by Administrator on 2017/4/1
  */
 
-public class CommonNavigationBar extends AbsNavigationBar<CommonNavigationBar.Builder.CommonNavigationBarParams>{
+public class CommonNavigationBar<C extends CommonNavigationBar.Builder.CommonNavigationBarParams>
+        extends AbsNavigationBar<CommonNavigationBar.Builder.CommonNavigationBarParams>{
 
     public CommonNavigationBar(CommonNavigationBar.Builder.CommonNavigationBarParams params) {
         super(params);
