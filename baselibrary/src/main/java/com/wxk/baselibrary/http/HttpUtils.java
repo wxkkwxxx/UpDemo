@@ -14,9 +14,10 @@ import java.util.Map;
 public class HttpUtils{
 
     private String mUrl;
-    private int mType = POST_TYPE;
+    //默认get
+    private int mType = GET_TYPE;
     private static final int POST_TYPE = 0x0011;
-    private static final int GET_TYPE = 0x0012;
+    private static final int GET_TYPE = 0x0022;
     private Map<String, Object> mParams;
 
     private Context mContext;
@@ -57,6 +58,8 @@ public class HttpUtils{
 
     public void execute(EngineCallBack callBack){
 
+        callBack.onPreExecute(mContext, mParams);
+
         if(callBack == null){
             callBack = EngineCallBack.DEFAULT_CALL_BACK;
         }
@@ -76,8 +79,9 @@ public class HttpUtils{
     //默认OkHttp
     private static IHttpEngine mHttpEngine = new OkHttpEngine();
 
-    public void exchangeEngine(IHttpEngine httpEngine){
+    public HttpUtils exchangeEngine(IHttpEngine httpEngine){
         mHttpEngine = httpEngine;
+        return this;
     }
 
     private void get(Context context, String url, Map<String, Object> params, EngineCallBack callBack) {

@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.wxk.baselibrary.ExceptionCrashHandler;
 import com.wxk.baselibrary.base.BaseActivity;
-import com.wxk.baselibrary.http.EngineCallBack;
 import com.wxk.baselibrary.http.HttpUtils;
 import com.wxk.baselibrary.ioc.CheckNet;
 import com.wxk.baselibrary.ioc.OnClick;
@@ -20,6 +19,8 @@ import com.wxk.baselibrary.log.LogUtils;
 import com.wxk.baselibrary.permission.PermissionFailed;
 import com.wxk.baselibrary.permission.PermissionSucceed;
 import com.wxk.framelibrary.CommonNavigationBar;
+import com.wxk.framelibrary.HttpCallBack;
+import com.wxk.updemo.model.PhoneModel;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -69,22 +70,28 @@ public class MainActivity extends BaseActivity {
 
     @OnClick(R.id.test_tv)
     @CheckNet
-    private void onClick(View view){
+    private void onClick(View view) {
 
-        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get?phone=18354214580&key=b58dd4390521d74743df3e52cac25642")
-                .get().execute(new EngineCallBack() {
-            @Override
-            public void onError(Exception e) {
+        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get") //路径,参数需要放在jni里
+                .addParams("phone", "18354214580")
+                .execute(new HttpCallBack<PhoneModel>() {
+                    @Override
+                    public void onError(Exception e) {
 
-            }
+                    }
 
-            @Override
-            public void onSuccess(final String result) {
+                    @Override
+                    public void onSuccess(PhoneModel result) {
 
-                LogUtils.e(result+"-=-=-=");
-            }
-        });
+                        LogUtils.e(result + "-=-=-=" + result.result.province);
 
+                    }
+
+                    @Override
+                    public void onPreExecute() {
+                        super.onPreExecute();
+                    }
+                });
 //        PermissionHelper.with(this)
 //                .requestCode(PermissionConstants.REQUEST_CODE_CALL_PHONE)
 //                .requestPermissions(new String[]{Manifest.permission.CALL_PHONE})
@@ -112,14 +119,14 @@ public class MainActivity extends BaseActivity {
     private void callPhone() {
 
         Intent intent = new Intent(Intent.ACTION_CALL);
-        Uri uri = Uri.parse("tel:"+88888);
+        Uri uri = Uri.parse("tel:" + 88888);
         intent.setData(uri);
         startActivity(intent);
     }
 
     //失败
     @PermissionFailed(requestCode = REQUEST_CODE_CALL_PHONE)
-    private void callFailed(){
+    private void callFailed() {
 
         Toast.makeText(this, "关闭了拨打电话权限", Toast.LENGTH_SHORT).show();
     }
@@ -127,7 +134,7 @@ public class MainActivity extends BaseActivity {
     private void upLoadCrashFile() {
 
         File crashFile = ExceptionCrashHandler.getInstance().getCrashFile();
-        if(crashFile.exists()){
+        if (crashFile.exists()) {
 
             //上传到服务器 这里模拟请求一下
             InputStreamReader reader = null;
@@ -138,7 +145,7 @@ public class MainActivity extends BaseActivity {
             try {
                 fis = new FileInputStream(crashFile);
                 reader = new InputStreamReader(fis);
-                while ((len = reader.read(buffer)) != -1){
+                while ((len = reader.read(buffer)) != -1) {
                     String str = new String(buffer);
                     Log.e("-------", str);
                 }
@@ -146,15 +153,15 @@ public class MainActivity extends BaseActivity {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }finally {
-                if(reader != null){
+            } finally {
+                if (reader != null) {
                     try {
                         reader.close();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
-                if(fis != null){
+                if (fis != null) {
                     try {
                         fis.close();
                     } catch (IOException e) {
