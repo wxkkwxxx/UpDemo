@@ -5,6 +5,6 @@ package com.wxk.baselibrary.permission;
  */
 public interface PermissionConstants {
 
-    int COMMON_FAILED_REQUEST_CODE = 0x001;
-    int CALL_PHONE_REQUEST_CODE = 0x0002;
+    int REQUEST_CODE_COMMON_FAILED = 0x001;
+    int REQUEST_CODE_CALL_PHONE = 0x0002;
 }

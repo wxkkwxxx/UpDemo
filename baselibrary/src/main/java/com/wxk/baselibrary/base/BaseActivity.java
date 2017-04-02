@@ -68,7 +68,7 @@ public abstract class BaseActivity extends AppCompatActivity{
     /**
      * 统一处理请求权限失败回调
      */
-    @PermissionFailed(requestCode = PermissionConstants.COMMON_FAILED_REQUEST_CODE)
+    @PermissionFailed(requestCode = PermissionConstants.REQUEST_CODE_COMMON_FAILED)
     public void requestPermissionFailed(){
 
         PermissionHelper.showAskRequestDialog(this,
@@ -76,6 +76,9 @@ public abstract class BaseActivity extends AppCompatActivity{
                 R.string.setting, R.string.cancel, null);
     }
 
+    /**
+     * 权限回调处理
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

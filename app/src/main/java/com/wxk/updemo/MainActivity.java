@@ -1,6 +1,5 @@
 package com.wxk.updemo;
 
-import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,12 +11,13 @@ import android.widget.Toast;
 
 import com.wxk.baselibrary.ExceptionCrashHandler;
 import com.wxk.baselibrary.base.BaseActivity;
+import com.wxk.baselibrary.http.EngineCallBack;
+import com.wxk.baselibrary.http.HttpUtils;
 import com.wxk.baselibrary.ioc.CheckNet;
 import com.wxk.baselibrary.ioc.OnClick;
 import com.wxk.baselibrary.ioc.ViewById;
-import com.wxk.baselibrary.permission.PermissionConstants;
+import com.wxk.baselibrary.log.LogUtils;
 import com.wxk.baselibrary.permission.PermissionFailed;
-import com.wxk.baselibrary.permission.PermissionHelper;
 import com.wxk.baselibrary.permission.PermissionSucceed;
 import com.wxk.framelibrary.CommonNavigationBar;
 
@@ -27,7 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-import static com.wxk.baselibrary.permission.PermissionConstants.CALL_PHONE_REQUEST_CODE;
+import static com.wxk.baselibrary.permission.PermissionConstants.REQUEST_CODE_CALL_PHONE;
 
 public class MainActivity extends BaseActivity {
 
@@ -71,10 +71,24 @@ public class MainActivity extends BaseActivity {
     @CheckNet
     private void onClick(View view){
 
-        PermissionHelper.with(this)
-                .requestCode(PermissionConstants.CALL_PHONE_REQUEST_CODE)
-                .requestPermissions(new String[]{Manifest.permission.CALL_PHONE})
-                .request();
+        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get?phone=18354214580&key=b58dd4390521d74743df3e52cac25642")
+                .get().execute(new EngineCallBack() {
+            @Override
+            public void onError(Exception e) {
+
+            }
+
+            @Override
+            public void onSuccess(final String result) {
+
+                LogUtils.e(result+"-=-=-=");
+            }
+        });
+
+//        PermissionHelper.with(this)
+//                .requestCode(PermissionConstants.REQUEST_CODE_CALL_PHONE)
+//                .requestPermissions(new String[]{Manifest.permission.CALL_PHONE})
+//                .request();
 
 //        AlertDialog dialog = new AlertDialog.Builder(this)
 //                .setContentView(R.layout.detail_comment_dialog)
@@ -94,7 +108,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //成功
-    @PermissionSucceed(requestCode = CALL_PHONE_REQUEST_CODE)
+    @PermissionSucceed(requestCode = REQUEST_CODE_CALL_PHONE)
     private void callPhone() {
 
         Intent intent = new Intent(Intent.ACTION_CALL);
@@ -104,7 +118,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //失败
-    @PermissionFailed(requestCode = CALL_PHONE_REQUEST_CODE)
+    @PermissionFailed(requestCode = REQUEST_CODE_CALL_PHONE)
     private void callFailed(){
 
         Toast.makeText(this, "关闭了拨打电话权限", Toast.LENGTH_SHORT).show();
