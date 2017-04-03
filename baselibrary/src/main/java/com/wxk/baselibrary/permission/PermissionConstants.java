@@ -7,4 +7,5 @@ public interface PermissionConstants {
 
     int REQUEST_CODE_COMMON_FAILED = 0x001;
     int REQUEST_CODE_CALL_PHONE = 0x0002;
+    int REQUEST_CODE_SDCARD = 0x0003;
 }

@@ -10,6 +10,12 @@ public class PhoneModel {
     public String reason;
     public PhoneResultModel result;
 
+    public PhoneModel(String resultcode, String reason, PhoneResultModel result) {
+        this.resultcode = resultcode;
+        this.reason = reason;
+        this.result = result;
+    }
+
     @Override
     public String toString() {
         return "PhoneModel{" +
@@ -19,12 +25,19 @@ public class PhoneModel {
                 '}';
     }
 
-    public class PhoneResultModel{
+    public static class PhoneResultModel{
 
         public String province;
         public String city;
         public String areacode;
         public String zip;
+
+        public PhoneResultModel(String province, String city, String areacode, String zip) {
+            this.province = province;
+            this.city = city;
+            this.areacode = areacode;
+            this.zip = zip;
+        }
 
         @Override
         public String toString() {

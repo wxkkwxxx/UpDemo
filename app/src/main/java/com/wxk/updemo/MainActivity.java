@@ -18,8 +18,11 @@ import com.wxk.baselibrary.ioc.ViewById;
 import com.wxk.baselibrary.log.LogUtils;
 import com.wxk.baselibrary.permission.PermissionFailed;
 import com.wxk.baselibrary.permission.PermissionSucceed;
-import com.wxk.framelibrary.CommonNavigationBar;
-import com.wxk.framelibrary.HttpCallBack;
+import com.wxk.framelibrary.db.DaoSupportFactory;
+import com.wxk.framelibrary.db.IDaoSupport;
+import com.wxk.framelibrary.http.HttpCallBack;
+import com.wxk.framelibrary.ui.CommonNavigationBar;
+import com.wxk.updemo.model.Person;
 import com.wxk.updemo.model.PhoneModel;
 
 import java.io.File;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import static com.wxk.baselibrary.permission.PermissionConstants.REQUEST_CODE_CALL_PHONE;
+import static com.wxk.baselibrary.permission.PermissionConstants.REQUEST_CODE_SDCARD;
 
 public class MainActivity extends BaseActivity {
 
@@ -62,6 +66,10 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initData() {
+
+        IDaoSupport<Person> daoSupport = DaoSupportFactory.getFactory().getDao(Person.class);
+        daoSupport.insert(new Person("wxk", 20, true));
+
         //上传文件
         upLoadCrashFile();
 
@@ -84,7 +92,6 @@ public class MainActivity extends BaseActivity {
                     public void onSuccess(PhoneModel result) {
 
                         LogUtils.e(result + "-=-=-=" + result.result.province);
-
                     }
 
                     @Override
@@ -125,7 +132,7 @@ public class MainActivity extends BaseActivity {
     }
 
     //失败
-    @PermissionFailed(requestCode = REQUEST_CODE_CALL_PHONE)
+    @PermissionFailed(requestCode = REQUEST_CODE_SDCARD)
     private void callFailed() {
 
         Toast.makeText(this, "关闭了拨打电话权限", Toast.LENGTH_SHORT).show();

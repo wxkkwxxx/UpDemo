@@ -1,4 +1,4 @@
-package com.wxk.framelibrary;
+package com.wxk.framelibrary.ui;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.wxk.baselibrary.navigationBar.AbsNavigationBar;
+import com.wxk.framelibrary.R;
 
 /**
  * Created by Administrator on 2017/4/1
