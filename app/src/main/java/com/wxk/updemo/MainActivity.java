@@ -30,6 +30,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.wxk.baselibrary.permission.PermissionConstants.REQUEST_CODE_CALL_PHONE;
 import static com.wxk.baselibrary.permission.PermissionConstants.REQUEST_CODE_SDCARD;
@@ -68,7 +70,14 @@ public class MainActivity extends BaseActivity {
     protected void initData() {
 
         IDaoSupport<Person> daoSupport = DaoSupportFactory.getFactory().getDao(Person.class);
-        daoSupport.insert(new Person("wxk", 20, true));
+//        daoSupport.insert(new Person("wxk", 20, true));
+
+        List<Person> datas = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            datas.add(new Person("wxk"+i, 10+i, false));
+        }
+
+        daoSupport.inset(datas);
 
         //上传文件
         upLoadCrashFile();
