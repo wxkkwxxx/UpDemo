@@ -68,7 +68,7 @@ public class DaoSupport<T> implements IDaoSupport<T>{
     }
 
     @Override
-    public void inset(List<T> datas) {
+    public void insert(List<T> datas) {
         mSQLiteDatabase.beginTransaction();
         for (T data : datas) {
             insert(data);

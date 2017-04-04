@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.wxk.baselibrary.ExceptionCrashHandler;
 import com.wxk.baselibrary.base.BaseActivity;
+import com.wxk.baselibrary.http.HttpUtils;
 import com.wxk.baselibrary.ioc.CheckNet;
 import com.wxk.baselibrary.ioc.OnClick;
 import com.wxk.baselibrary.ioc.ViewById;
@@ -19,8 +20,10 @@ import com.wxk.baselibrary.permission.PermissionFailed;
 import com.wxk.baselibrary.permission.PermissionSucceed;
 import com.wxk.framelibrary.db.DaoSupportFactory;
 import com.wxk.framelibrary.db.IDaoSupport;
+import com.wxk.framelibrary.http.HttpCallBack;
 import com.wxk.framelibrary.ui.CommonNavigationBar;
 import com.wxk.updemo.model.Person;
+import com.wxk.updemo.model.PhoneModel;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -78,7 +81,7 @@ public class MainActivity extends BaseActivity {
 //            datas.add(new Person("wxk"+i, 10+i, false));
 //        }
 //
-//        daoSupport.inset(datas);
+//        daoSupport.insert(datas);
 
         List<Person> list = daoSupport.querySupport().query();
         LogUtils.e(TAG, "--->" + list.toString());
@@ -93,25 +96,26 @@ public class MainActivity extends BaseActivity {
     @CheckNet
     private void onClick(View view) {
 
-//        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get") //路径,参数需要放在jni里
-//                .addParams("phone", "18354214580")
-//                .execute(new HttpCallBack<PhoneModel>() {
-//                    @Override
-//                    public void onError(Exception e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onSuccess(PhoneModel result) {
-//
-//                        LogUtils.e(result + "-=-=-=" + result.result.province);
-//                    }
-//
-//                    @Override
-//                    public void onPreExecute() {
-//                        super.onPreExecute();
-//                    }
-//                });
+        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get") //路径,参数需要放在jni里
+                .addParams("phone", "18354214580")
+                .cache(true)
+                .execute(new HttpCallBack<PhoneModel>() {
+                    @Override
+                    public void onError(Exception e) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(PhoneModel result) {
+
+                        LogUtils.e(result + "-=-=-=" + result.result.province);
+                    }
+
+                    @Override
+                    public void onPreExecute() {
+                        super.onPreExecute();
+                    }
+                });
 //        PermissionHelper.with(this)
 //                .requestCode(PermissionConstants.REQUEST_CODE_CALL_PHONE)
 //                .requestPermissions(new String[]{Manifest.permission.CALL_PHONE})

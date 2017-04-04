@@ -22,6 +22,9 @@ public class HttpUtils{
 
     private Context mContext;
 
+    //是否需要缓存
+    private boolean mCache;
+
     public HttpUtils(Context context){
         this.mContext = context;
         mParams = new HashMap<>();
@@ -29,6 +32,10 @@ public class HttpUtils{
 
     public static HttpUtils with(Context context){
         return new HttpUtils(context);
+    }
+
+    public static void init(IHttpEngine httpEngine){
+        mHttpEngine = httpEngine;
     }
 
     public HttpUtils url(String url){
@@ -56,6 +63,11 @@ public class HttpUtils{
         return this;
     }
 
+    public HttpUtils cache(boolean cache){
+        this.mCache = cache;
+        return this;
+    }
+
     public void execute(EngineCallBack callBack){
 
         callBack.onPreExecute(mContext, mParams);
@@ -77,7 +89,7 @@ public class HttpUtils{
     }
 
     //默认OkHttp
-    private static IHttpEngine mHttpEngine = new OkHttpEngine();
+    private static IHttpEngine mHttpEngine = null;
 
     public HttpUtils exchangeEngine(IHttpEngine httpEngine){
         mHttpEngine = httpEngine;
@@ -85,11 +97,11 @@ public class HttpUtils{
     }
 
     private void get(Context context, String url, Map<String, Object> params, EngineCallBack callBack) {
-        mHttpEngine.get(context, url, params, callBack);
+        mHttpEngine.get(mCache, context, url, params, callBack);
     }
 
     private void post(Context context, String url, Map<String, Object> params, EngineCallBack callBack) {
-        mHttpEngine.post(context, url, params, callBack);
+        mHttpEngine.post(mCache, context, url, params, callBack);
     }
 
     public static String jointParams(String url, Map<String, Object> params) {

@@ -1,7 +1,11 @@
-package com.wxk.baselibrary.http;
+package com.wxk.framelibrary.http;
 
 import android.content.Context;
+import android.text.TextUtils;
 
+import com.wxk.baselibrary.http.EngineCallBack;
+import com.wxk.baselibrary.http.HttpUtils;
+import com.wxk.baselibrary.http.IHttpEngine;
 import com.wxk.baselibrary.log.LogUtils;
 
 import java.io.File;
@@ -29,12 +33,23 @@ public class OkHttpEngine implements IHttpEngine {
     private static OkHttpClient mOkHttpClient = new OkHttpClient();
 
     @Override
-    public void get(Context context, String url, Map<String, Object> params, final EngineCallBack callBack) {
+    public void get(final boolean cache, Context context, String url, Map<String, Object> params, final EngineCallBack callBack) {
 
-        url = HttpUtils.jointParams(url, params);
-        LogUtils.e("OkHttpEngine->get请求路径:", url);
+        final String finalUrl = HttpUtils.jointParams(url, params);
+        LogUtils.e("OkHttpEngine->get请求路径:", finalUrl);
 
-        Request.Builder builder = new Request.Builder().url(url).tag(context);
+        //判断是否需要缓存
+        if(cache){
+
+            String resultJson = CacheUtils.getCacheResultJson(finalUrl);
+            if(!TextUtils.isEmpty(resultJson)){
+
+                LogUtils.e("已读到缓存");
+                callBack.onSuccess(resultJson);
+            }
+        }
+
+        Request.Builder builder = new Request.Builder().url(finalUrl).tag(context);
         builder.method("GET", null);
         Request request = builder.build();
         mOkHttpClient.newCall(request).enqueue(new Callback() {
@@ -45,19 +60,46 @@ public class OkHttpEngine implements IHttpEngine {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String result = response.body().string();
-                LogUtils.e("OkHttpEngine->get返回参数:", result);
+                String resultJson = response.body().string();
 
-                callBack.onSuccess(result);
+                // 获取数据之后会执行成功方法
+                if (cache) {
+                    String cacheResultJson = CacheUtils.getCacheResultJson(finalUrl);
+                    if (!TextUtils.isEmpty(resultJson)) {
+                        // 比对内容
+                        if (resultJson.equals(cacheResultJson)) {
+                            // 内容一样，不需要执行成功成功方法刷新界面
+                            LogUtils.e("数据和缓存一致：", resultJson);
+                            return;
+                        }
+                    }
+                }
+
+                callBack.onSuccess(resultJson);
+                LogUtils.e("OkHttpEngine->get返回数据: ", resultJson);
+                if (cache) {
+                    CacheUtils.cacheData(finalUrl, resultJson);
+                }
             }
         });
     }
 
     @Override
-    public void post(Context context, String url, Map<String, Object> params, final EngineCallBack callBack) {
+    public void post(final boolean cache, Context context, String url, Map<String, Object> params, final EngineCallBack callBack) {
 
-        final String jointUrl = HttpUtils.jointParams(url, params);
-        LogUtils.e("OkHttpEngine->post请求路径:", jointUrl);
+        final String finalUrl = HttpUtils.jointParams(url, params);
+        LogUtils.e("OkHttpEngine->post请求路径:", finalUrl);
+
+        //判断是否需要缓存
+        if(cache){
+
+            String resultJson = CacheUtils.getCacheResultJson(finalUrl);
+            if(!TextUtils.isEmpty(resultJson)){
+
+                LogUtils.e("已读到缓存");
+                callBack.onSuccess(resultJson);
+            }
+        }
 
         RequestBody requestBody = appendBody(params);
         Request request = new Request.Builder()
@@ -75,10 +117,25 @@ public class OkHttpEngine implements IHttpEngine {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-                String result = response.body().string();
-                LogUtils.e("OkHttpEngine->post返回参数:", result);
+                String resultJson = response.body().string();
+                // 获取数据之后会执行成功方法
+                if (cache) {
+                    String cacheResultJson = CacheUtils.getCacheResultJson(finalUrl);
+                    if (!TextUtils.isEmpty(resultJson)) {
+                        // 比对内容
+                        if (resultJson.equals(cacheResultJson)) {
+                            // 内容一样，不需要执行成功成功方法刷新界面
+                            LogUtils.e("数据和缓存一致：", resultJson);
+                            return;
+                        }
+                    }
+                }
 
-                callBack.onSuccess(result);
+                callBack.onSuccess(resultJson);
+                LogUtils.e("OkHttpEngine->post返回数据: ", resultJson);
+                if (cache) {
+                    CacheUtils.cacheData(finalUrl, resultJson);
+                }
             }
         });
     }

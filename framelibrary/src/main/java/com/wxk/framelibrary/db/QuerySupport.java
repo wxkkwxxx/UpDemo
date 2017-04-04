@@ -12,6 +12,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/4/4
  * 查询api参数:http://blog.csdn.net/scorplopan/article/details/6303559
+ * http://blog.csdn.net/jing110fei/article/details/38491289
  */
 public class QuerySupport<T> {
 
