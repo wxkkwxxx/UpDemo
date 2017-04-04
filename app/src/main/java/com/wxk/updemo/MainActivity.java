@@ -11,7 +11,6 @@ import android.widget.Toast;
 
 import com.wxk.baselibrary.ExceptionCrashHandler;
 import com.wxk.baselibrary.base.BaseActivity;
-import com.wxk.baselibrary.http.HttpUtils;
 import com.wxk.baselibrary.ioc.CheckNet;
 import com.wxk.baselibrary.ioc.OnClick;
 import com.wxk.baselibrary.ioc.ViewById;
@@ -20,17 +19,14 @@ import com.wxk.baselibrary.permission.PermissionFailed;
 import com.wxk.baselibrary.permission.PermissionSucceed;
 import com.wxk.framelibrary.db.DaoSupportFactory;
 import com.wxk.framelibrary.db.IDaoSupport;
-import com.wxk.framelibrary.http.HttpCallBack;
 import com.wxk.framelibrary.ui.CommonNavigationBar;
 import com.wxk.updemo.model.Person;
-import com.wxk.updemo.model.PhoneModel;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.wxk.baselibrary.permission.PermissionConstants.REQUEST_CODE_CALL_PHONE;
@@ -40,6 +36,11 @@ public class MainActivity extends BaseActivity {
 
     @ViewById(R.id.test_tv)
     private Button mTestTv;
+
+    @Override
+    protected String getChildName() {
+        return MainActivity.class.getSimpleName();
+    }
 
     @Override
     protected void setContentView(@Nullable Bundle savedInstanceState) {
@@ -72,12 +73,15 @@ public class MainActivity extends BaseActivity {
         IDaoSupport<Person> daoSupport = DaoSupportFactory.getFactory().getDao(Person.class);
 //        daoSupport.insert(new Person("wxk", 20, true));
 
-        List<Person> datas = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            datas.add(new Person("wxk"+i, 10+i, false));
-        }
+//        List<Person> datas = new ArrayList<>();
+//        for (int i = 0; i < 10; i++) {
+//            datas.add(new Person("wxk"+i, 10+i, false));
+//        }
+//
+//        daoSupport.inset(datas);
 
-        daoSupport.inset(datas);
+        List<Person> list = daoSupport.querySupport().query();
+        LogUtils.e(TAG, "--->" + list.toString());
 
         //上传文件
         upLoadCrashFile();
@@ -89,25 +93,25 @@ public class MainActivity extends BaseActivity {
     @CheckNet
     private void onClick(View view) {
 
-        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get") //路径,参数需要放在jni里
-                .addParams("phone", "18354214580")
-                .execute(new HttpCallBack<PhoneModel>() {
-                    @Override
-                    public void onError(Exception e) {
-
-                    }
-
-                    @Override
-                    public void onSuccess(PhoneModel result) {
-
-                        LogUtils.e(result + "-=-=-=" + result.result.province);
-                    }
-
-                    @Override
-                    public void onPreExecute() {
-                        super.onPreExecute();
-                    }
-                });
+//        HttpUtils.with(this).url("http://apis.juhe.cn/mobile/get") //路径,参数需要放在jni里
+//                .addParams("phone", "18354214580")
+//                .execute(new HttpCallBack<PhoneModel>() {
+//                    @Override
+//                    public void onError(Exception e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onSuccess(PhoneModel result) {
+//
+//                        LogUtils.e(result + "-=-=-=" + result.result.province);
+//                    }
+//
+//                    @Override
+//                    public void onPreExecute() {
+//                        super.onPreExecute();
+//                    }
+//                });
 //        PermissionHelper.with(this)
 //                .requestCode(PermissionConstants.REQUEST_CODE_CALL_PHONE)
 //                .requestPermissions(new String[]{Manifest.permission.CALL_PHONE})

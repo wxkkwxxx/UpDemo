@@ -2,7 +2,11 @@ package com.wxk.baselibrary.dialog;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.support.annotation.NonNull;
+import android.support.annotation.StyleRes;
 import android.util.SparseArray;
+import android.util.TypedValue;
+import android.view.ContextThemeWrapper;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,8 +87,19 @@ class AlertController {
         public int mGravity = Gravity.CENTER;
 
         public AlertParams(Context context, int themeResId) {
-            mContext = context;
+            mContext = new ContextThemeWrapper(
+                    context, resolveDialogTheme(context, themeResId));
             mThemeResId = themeResId;
+        }
+
+        int resolveDialogTheme(@NonNull Context context, @StyleRes int resId) {
+            if (resId >= 0x01000000) {   // start of real resource IDs.
+                return resId;
+            } else {
+                TypedValue outValue = new TypedValue();
+                context.getTheme().resolveAttribute(android.support.v7.appcompat.R.attr.alertDialogTheme, outValue, true);
+                return outValue.resourceId;
+            }
         }
 
         /**

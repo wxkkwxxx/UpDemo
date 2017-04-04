@@ -20,7 +20,7 @@ public interface IDaoSupport<T> {
     void inset(List<T> datas);
 
     //查询需要些一个support
-    List<T> query();
+    QuerySupport<T> querySupport();
 
     //删除
     int delete(String whereClause, String... whereArgs);

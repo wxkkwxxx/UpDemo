@@ -14,7 +14,6 @@ public class DaoSupportFactory {
     private static DaoSupportFactory mFactory;
     private static SQLiteDatabase mSQLiteDatabase;
 
-    //此处最好一直持有外部数据库的引用
     private DaoSupportFactory(){
 
         if(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){

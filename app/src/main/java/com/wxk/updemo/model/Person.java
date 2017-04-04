@@ -9,6 +9,10 @@ public class Person {
     private String name;
     private int age;
     private boolean flag;
+    private PhoneModel model;
+
+    public Person() {
+    }
 
     public Person(String name, int age, boolean flag) {
         this.name = name;

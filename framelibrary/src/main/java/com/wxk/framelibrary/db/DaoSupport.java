@@ -1,7 +1,6 @@
 package com.wxk.framelibrary.db;
 
 import android.content.ContentValues;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.support.v4.util.ArrayMap;
 
@@ -31,8 +30,8 @@ public class DaoSupport<T> implements IDaoSupport<T>{
          this.mSQLiteDatabase = sqLiteDatabase;
          this.mClazz = clazz;
 
-        /*"create table if not exists Person ("
-                + "id integer primary key autoincrement, "
+        /*"create table if not exists Person("
+        + "id integer primary key autoincrement, "
                 + "name text, "
                 + "age integer, "
                 + "flag boolean)";*/
@@ -65,7 +64,6 @@ public class DaoSupport<T> implements IDaoSupport<T>{
     public long insert(T t) {
 
         ContentValues values = contentValueByObj(t);
-
         return mSQLiteDatabase.insert(DaoUtils.getTableName(mClazz), null, values);
     }
 
@@ -79,17 +77,20 @@ public class DaoSupport<T> implements IDaoSupport<T>{
         mSQLiteDatabase.endTransaction();
     }
 
-    @Override
-    public List<T> query() {
+    private QuerySupport<T> mQuerySupport;
 
-        Cursor cursor = mSQLiteDatabase.query(DaoUtils.getTableName(mClazz), null, null, null, null, null, null);
-        return cursorToList(cursor);
+    @Override
+    public QuerySupport<T> querySupport() {
+        if(mQuerySupport == null){
+            mQuerySupport = new QuerySupport<>(mSQLiteDatabase, mClazz);
+        }
+        return mQuerySupport;
     }
 
     @Override
     public int delete(String whereClause, String... whereArgs) {
 
-        //示例
+//        示例
 //        ContentValues cv = new ContentValues();
 //        String[] args = {"wxk", String.valueOf(12)};
 //        delete("user", "name = ? and age= ?", args);
@@ -99,6 +100,11 @@ public class DaoSupport<T> implements IDaoSupport<T>{
 
     @Override
     public int update(T t, String whereClause, String... whereArgs) {
+
+//        示例
+//        ContentValues cv = new ContentValues();
+//        String[] args = {"wxk", String.valueOf(12)};
+//        delete("user", "name = ? and age= ?", args);
 
         ContentValues values = contentValueByObj(t);
         return mSQLiteDatabase.update(DaoUtils.getTableName(mClazz), values, whereClause, whereArgs);
@@ -149,11 +155,5 @@ public class DaoSupport<T> implements IDaoSupport<T>{
         }
         LogUtils.e(TAG, "values--->" + values);
         return values;
-    }
-
-    //查询比较复杂需要单独写一个support类
-    private List<T> cursorToList(Cursor cursor) {
-
-        return null;
     }
 }

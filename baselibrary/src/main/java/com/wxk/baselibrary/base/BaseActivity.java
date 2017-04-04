@@ -19,8 +19,11 @@ import com.wxk.baselibrary.permission.PermissionHelper;
 
 public abstract class BaseActivity extends AppCompatActivity{
 
+    protected String TAG;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        TAG = getChildName();
         super.onCreate(savedInstanceState);
 
         // 设置布局layout
@@ -37,6 +40,8 @@ public abstract class BaseActivity extends AppCompatActivity{
         // 初始化数据
         initData();
     }
+
+    protected abstract String getChildName();
 
     // 设置布局layout
     protected abstract void setContentView(@Nullable Bundle savedInstanceState);
